@@ -1,7 +1,10 @@
+import axios from "axios";
 import * as yup from "yup";
 
 const rePhoneNumber =
   /^(\+?\d{0,4})?\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{3}\)?)\s?-?\s?(\(?\d{4}\)?)?$/;
+
+const url = "https://webhook.site/eb8cd357-03af-4768-a4c7-ca404c974b15";
 
 export const validationSchema = yup.object().shape({
   name: yup.string().required("Поле обязательно"),
@@ -18,8 +21,15 @@ export const validationSchema = yup.object().shape({
   email: yup.string().email("Неправильный email").nullable(),
 });
 
-export const onSubmit = (values, onSubmitProps) => {
-  console.log(values);
+export const onSubmit = async (values, onSubmitProps) => {
+  const data = JSON.stringify(values);
+
+  await axios({
+    method: "post",
+    url,
+    data,
+  });
+
   onSubmitProps.setSubmitting(false);
 };
 
