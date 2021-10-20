@@ -33,7 +33,6 @@ export const DefaultForm = () => {
     }
     setValidationSchema(yup.object().shape(null));
     setValidationSchema(yup.object().shape(shema));
-    console.log(shema, validationSchema);
   }, [items, shema]);
 
   return (

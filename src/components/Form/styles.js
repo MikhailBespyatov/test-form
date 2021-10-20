@@ -24,7 +24,9 @@ export const SubmitButton = styled.button`
 `;
 
 export const FormWrapper = styled.div`
-  width: 70vh;
+  ${flexCenter};
+  width: 100%;
+  padding: 100px 0;
 `;
 
 export const AddRemoveButton = styled.button`

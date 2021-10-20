@@ -9,7 +9,6 @@ const init = createEvent();
 const formIndexs = createStore([])
   .on(addForm, (state, i) => [...state, i])
   .on(removeForm, (state, i) => {
-    console.log(state, i);
     return state.filter((it) => it !== i);
   });
 
