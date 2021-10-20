@@ -25,6 +25,11 @@ export const SubmitButton = styled.button`
 
 export const FormWrapper = styled.div`
   width: 70vh;
+  height: 70vh;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 `;
 
 export const AddRemoveButton = styled.button`

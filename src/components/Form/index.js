@@ -1,141 +1,95 @@
-import { BooleanCheckbox } from "components/BooleanCheckbox";
 import { MarginWrapper } from "components/common/wrappers/MarginWrapper";
-import { FormikControl } from "components/FormikControl";
+import { FormItem } from "components/FormItem";
+import { useStore } from "effector-react";
 import { Form, Formik } from "formik";
-import React, { useState } from "react";
-import {
-  genderOptions,
-  initialValues,
-  onSubmit,
-  validationSchema,
-} from "./constants";
+import { useLocalStorageState } from "hooks/useLocalStorageState";
+import React, { useEffect, useState } from "react";
+import { formEvents, formStores } from "stores/form";
+import * as yup from "yup";
+import { onSubmit } from "./constants";
 import {
   AddRemoveButton,
   CenterWrapper,
-  FormControlsWrapper,
   FormWrapper,
   SubmitButton,
 } from "./styles";
 
 export const DefaultForm = () => {
-  const [mobileAndEmailShow, setMobileAndEmailShow] = useState(false);
-  const [addPassenger, setAddPassenger] = useState(true);
+  const [counter, setCounter] = useState(0);
+  const [values, setInitialValues] = useState({});
+  const [validationSchema, setValidationSchema] = useState();
+  const { items } = useStore(formStores.values);
+  const formIndexs = useStore(formStores.formIndexs);
+  const { shema } = useStore(formStores.shema);
+
+  const [initialValues, handleUpdateForm] = useLocalStorageState({
+    key: "formValues",
+    value: values,
+  });
+
+  useEffect(() => {
+    if (items) {
+      setInitialValues(items);
+    }
+    setValidationSchema(yup.object().shape(null));
+    setValidationSchema(yup.object().shape(shema));
+    console.log(shema, validationSchema);
+  }, [items, shema]);
+
   return (
     <FormWrapper>
-      <MarginWrapper marginBottom="50px">
-        <CenterWrapper>
-          <AddRemoveButton
-            type="button"
-            onClick={() => {
-              setAddPassenger(!addPassenger);
-              setMobileAndEmailShow(false);
-            }}
-            isRemove={!addPassenger}
-          >
-            {addPassenger ? "Добавить пассажира" : "Удалить пассажира"}
-          </AddRemoveButton>
-        </CenterWrapper>
-      </MarginWrapper>
+      <Formik
+        enableReinitialize
+        initialValues={initialValues}
+        onSubmit={onSubmit}
+        validationSchema={validationSchema}
+        validateOnMount
+      >
+        {({ isValid, isSubmitting, values, touched, errors }) => {
+          return (
+            <Form>
+              <MarginWrapper marginBottom="50px">
+                <CenterWrapper>
+                  <AddRemoveButton
+                    type="button"
+                    onClick={() => {
+                      setCounter(counter + 1);
+                      formEvents.addForm(counter);
+                    }}
+                  >
+                    Добавить пассажира
+                  </AddRemoveButton>
+                </CenterWrapper>
+              </MarginWrapper>
+              {formIndexs && formIndexs.length !== 0
+                ? formIndexs.map((it) => {
+                    return (
+                      <FormItem
+                        key={it}
+                        errors={errors}
+                        touched={touched}
+                        values={values}
+                        i={it}
+                        saveForm={handleUpdateForm}
+                      />
+                    );
+                  })
+                : null}
 
-      {!addPassenger ? (
-        <Formik
-          initialValues={initialValues}
-          onSubmit={onSubmit}
-          validationSchema={validationSchema}
-          validateOnMount
-        >
-          {({ isValid, isSubmitting, values, touched, errors }) => {
-            return (
-              <Form>
-                <FormControlsWrapper>
-                  <FormikControl
-                    control="input"
-                    name="name"
-                    label="Имя"
-                    isValid
-                    isRequired
-                    errorMessage={errors.name}
-                    touched={touched.name}
-                  />
-
-                  <FormikControl
-                    control="input"
-                    name="lastName"
-                    label="Фамилия"
-                    isValid
-                    isRequired
-                    errorMessage={errors.lastName}
-                    touched={touched.lastName}
-                  />
-
-                  <FormikControl
-                    control="input"
-                    name="middleName"
-                    label="Отчество"
-                    isValid
-                    isRequired
-                    errorMessage={errors.middleName}
-                    touched={touched.middleName}
-                  />
-
-                  <FormikControl
-                    control="select"
-                    name="gender"
-                    options={genderOptions}
-                    label="Пол"
-                    defaultValue={values.gender}
-                    placeholder={"не выбрано"}
-                    isValid
-                    isRequired
-                    errorMessage={errors.gender}
-                    touched={touched.gender}
-                  />
-                </FormControlsWrapper>
-
-                <MarginWrapper marginBottom="20px">
-                  <BooleanCheckbox
-                    name="checkbox"
-                    label="Добавить номер телефона и почту"
-                    onChange={setMobileAndEmailShow}
-                  />
-                </MarginWrapper>
-
-                {mobileAndEmailShow && (
-                  <FormControlsWrapper>
-                    <FormikControl
-                      control="input"
-                      name="mobile"
-                      label="Телефон"
-                      isValid
-                      errorMessage={errors.mobile}
-                      touched={touched.mobile}
-                    />
-                    <FormikControl
-                      control="input"
-                      name="email"
-                      label="Почта"
-                      isValid
-                      errorMessage={errors.email}
-                      touched={touched.email}
-                    />
-                  </FormControlsWrapper>
-                )}
-
-                <MarginWrapper marginTop="50px">
-                  <CenterWrapper>
-                    <SubmitButton
-                      type="submit"
-                      disabled={!isValid || isSubmitting}
-                    >
-                      отправить
-                    </SubmitButton>
-                  </CenterWrapper>
-                </MarginWrapper>
-              </Form>
-            );
-          }}
-        </Formik>
-      ) : null}
+              <MarginWrapper marginTop="50px">
+                <CenterWrapper>
+                  <SubmitButton
+                    type="submit"
+                    disabled={!isValid || isSubmitting}
+                  >
+                    отправить
+                  </SubmitButton>
+                </CenterWrapper>
+              </MarginWrapper>
+            </Form>
+          );
+        }}
+      </Formik>
     </FormWrapper>
   );
 };

@@ -15,6 +15,7 @@ export const TextInput = ({
   isRequired,
   errorMessage,
   touched,
+  values,
 }) => {
   return (
     <Wrapper>
